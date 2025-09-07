@@ -1,0 +1,773 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>BlockFarm — Interactive Prototype</title>
+  <style>
+    :root {
+      --bg: #f7fbf6;
+      --card: #ffffff;
+      --accent: #2f855a;
+      --muted: #6b7280;
+      --hover: #38a169;
+    }
+
+    * {
+      box-sizing: border-box;
+      transition: all 0.25s ease-in-out;
+    }
+
+    body {
+      font-family: Inter, system-ui, Arial, sans-serif;
+      margin: 0;
+      background: var(--bg);
+      color: #111;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 28px auto;
+      padding: 20px;
+      animation: fadeIn 0.6s ease;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #e6e9ef;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo {
+      width: 56px;
+      height: 56px;
+      border-radius: 12px;
+      background: var(--accent);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 20px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    }
+
+    .nav-buttons {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-left: auto;
+    }
+
+    nav button {
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: none;
+      background: #eef6ef;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    nav button:hover {
+      background: var(--accent);
+      color: #fff;
+      transform: scale(1.05);
+    }
+
+   #reset-data {
+  background: #fee2e2;
+  color: #b91c1c;
+  font-weight: 500;
+  font-size: 14px; /* slightly bigger */
+  padding: 8px 12px; /* more clickable area */
+  border-radius: 6px;
+}
+
+#reset-data:hover {
+  background: #fca5a5;
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+
+    .dark-toggle {
+      display: flex;
+      align-items: center;
+      margin-left: 12px;
+      order: 1;
+    }
+
+    .dark-toggle input {
+      display: none;
+    }
+
+    .dark-toggle label {
+      cursor: pointer;
+      font-size: 18px;
+      padding: 6px 12px;
+      border-radius: 8px;
+      background: #eef6ef;
+      transition: background 0.3s;
+    }
+
+    .dark-toggle label:hover {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .card {
+      background: var(--card);
+      padding: 16px;
+      border-radius: 14px;
+      box-shadow: 0 6px 18px rgba(10, 10, 10, 0.06);
+      animation: fadeUp 0.4s ease;
+    }
+
+    h1,
+    h2 {
+      margin: 0;
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .grid.cols-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    form input,
+    form textarea,
+    select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #e6e9ef;
+      outline: none;
+    }
+
+    form input:focus,
+    form textarea:focus,
+    select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(47, 133, 90, 0.2);
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 10px 14px;
+      border-radius: 8px;
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .btn:hover {
+      background: var(--hover);
+      transform: translateY(-2px);
+    }
+
+    .btn.secondary {
+      background: #eef6ef;
+      color: var(--accent);
+    }
+
+    .btn.secondary:hover {
+      background: #d9f2e0;
+      transform: translateY(-2px);
+    }
+
+    .small {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    pre {
+      white-space: pre-wrap;
+      background: #f3f6f8;
+      padding: 12px;
+      border-radius: 8px;
+      font-family: monospace;
+      overflow-x: auto;
+    }
+
+    footer {
+      margin-top: 22px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 800px) {
+      .grid.cols-3 {
+        grid-template-columns: 1fr;
+      }
+
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .nav-buttons {
+        margin-left: 0;
+        margin-top: 8px;
+      }
+
+      .dark-toggle {
+        margin-left: 0;
+        margin-top: 8px;
+      }
+    }
+
+    .qr-box {
+      position: relative;
+    }
+
+    .qr-box canvas:hover {
+      transform: scale(1.2);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.98);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes scanAnim {
+      0% {
+        transform: translateY(-120px);
+        opacity: 0;
+      }
+
+      50% {
+        transform: translateY(0);
+        opacity: 0.6;
+      }
+
+      100% {
+        transform: translateY(120px);
+        opacity: 0;
+      }
+    }
+
+    .fade-view {
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    .fade-view.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .list .card,
+    #events-list .card {
+      cursor: pointer;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .list .card:hover,
+    #events-list .card:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .card .btn {
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .card .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    body.dark-mode {
+      --bg: #1a202c;
+      --card: #2d3748;
+      --accent: #48bb78;
+      --muted: #a0aec0;
+      --hover: #38a169;
+      color: #f7fafc;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="logo">BF</div>
+        <div>
+          <h1>BlockFarm</h1>
+          <div class="small">Trace produce — farm to consumer (prototype)</div>
+        </div>
+      </div>
+
+      <nav class="nav-buttons">
+  <button id="nav-dashboard">Dashboard</button>
+  <button id="nav-register">Register Batch</button>
+  <button id="nav-transport">Transport Update</button>
+  <button id="nav-consumer">Consumer Scan</button>
+  <button id="export-state">Export Data</button>
+  <button id="reset-data" class="danger">Reset</button> <!-- Moved to last -->
+</nav>
+
+
+      <div class="dark-toggle">
+        <input type="checkbox" id="darkSwitch">
+        <label for="darkSwitch">🌙</label>
+      </div>
+    </header>
+
+    <main id="main" style="margin-top:18px"></main>
+
+    <footer class="small">Prototype — simulated blockchain (localStorage). Replace with real smart-contract & IPFS
+      for production.</footer>
+  </div>
+
+  <script>
+    // ===== Dark Mode =====
+    document.getElementById('darkSwitch').addEventListener('change', e => {
+      document.body.classList.toggle('dark-mode', e.target.checked);
+    });
+
+    // ===== Reset data =====
+    document.getElementById('reset-data').addEventListener('click', () => {
+      if (confirm('Are you sure you want to clear all data?')) localStorage.clear(), location.reload();
+    });
+
+    // ===== Blockchain simulation =====
+    function randomHash(prefix = '0x') {
+      return prefix + Math.random().toString(36).slice(2, 10) + Math.random().toString(36).slice(2, 10);
+    }
+
+    function ipfsAdd(obj) {
+      const cid = 'CID' + Math.random().toString(36).slice(2, 9);
+      localStorage.setItem('ipfs:' + cid, JSON.stringify(obj));
+      return cid;
+    }
+
+    function ipfsGet(cid) {
+      const raw = localStorage.getItem('ipfs:' + cid);
+      return raw ? JSON.parse(raw) : null;
+    }
+
+    function chainEmit(event) {
+      const all = JSON.parse(localStorage.getItem('chainEvents') || '[]');
+      const ev = Object.assign({}, event, { txHash: randomHash('0x'), timestamp: new Date().toISOString() });
+      all.push(ev);
+      localStorage.setItem('chainEvents', JSON.stringify(all));
+      return ev;
+    }
+
+    function chainGetEventsByBatch(batchId) {
+      const all = JSON.parse(localStorage.getItem('chainEvents') || '[]');
+      return all.filter(e => e.batchId === batchId);
+    }
+
+    function saveBatchIndex(batch) {
+      const idx = JSON.parse(localStorage.getItem('batches') || '{}');
+      idx[batch.id] = batch;
+      localStorage.setItem('batches', JSON.stringify(idx));
+    }
+
+    function getBatchIndex() {
+      return JSON.parse(localStorage.getItem('batches') || '{}');
+    }
+
+    function nextBatchId() {
+      const id = parseInt(localStorage.getItem('nextBatchId') || '1', 10);
+      localStorage.setItem('nextBatchId', (id + 1).toString());
+      return id.toString();
+    }
+
+    const main = document.getElementById('main');
+
+    // ===== Fade view helper =====
+    function fadeInView(html) {
+      main.innerHTML = html;
+      main.classList.add('fade-view');
+      setTimeout(() => main.classList.add('show'), 50);
+    }
+
+    // ===== Show Dashboard =====
+    function showDashboard() {
+      const batches = Object.values(getBatchIndex()).sort((a, b) => parseInt(b.id) - parseInt(a.id));
+      fadeInView(`
+        <section class="card">
+          <h2>Batches</h2>
+          <div style="margin-top:12px">
+            ${batches.length === 0 ? '<div class="small">No batches yet. Register one.</div>' : ''}
+            <div class="list" id="batches-list"></div>
+          </div>
+        </section>
+      `);
+      const listEl = document.getElementById('batches-list');
+      listEl.innerHTML = '';
+      batches.forEach(b => {
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div>
+              <div class="small">Batch ID</div>
+              <div style="font-weight:700">#${b.id}</div>
+            </div>
+            <div class="small">Status<br><strong>${b.status || 'Registered'}</strong></div>
+          </div>
+          <div style="margin-top:8px">Crop: ${b.cropType || '-'}<br>Farmer: ${b.farmerName || '-'}</div>
+          <div style="margin-top:10px;display:flex;gap:8px;align-items:center">
+            <button class="btn" data-batch="${b.id}" data-action="view">View</button>
+            <button class="btn secondary" data-batch="${b.id}" data-action="retail">Retail Arrival</button>
+            <div class="qr-box" id="qr-${b.id}"></div>
+          </div>
+        `;
+        listEl.appendChild(div);
+        const qrBox = div.querySelector(`#qr-${b.id}`);
+        const qr = document.createElement('canvas');
+        qr.style.width = '64px';
+        qr.style.height = '64px';
+        qrBox.appendChild(qr);
+        new QRious({ element: qr, value: window.location.href + '?batch=' + b.id, size: 64 });
+
+        // Highlight latest event
+        const events = chainGetEventsByBatch(b.id);
+        const lastEvent = events[events.length - 1];
+        if (lastEvent) {
+          div.style.border = '2px solid ' + (lastEvent.type === 'RETAIL_ARRIVAL' ? '#38a169' : '#3182ce');
+          div.style.boxShadow = '0 10px 25px rgba(0,0,0,0.2)';
+        }
+      });
+    }
+    // ===== Show Register Form =====
+    function showRegister() {
+      fadeInView(`
+        <section class="card">
+          <h2>Register New Batch</h2>
+          <form id="register-form" style="margin-top:12px">
+            <div class="grid" style="grid-template-columns:1fr 1fr;gap:10px">
+              <input name="farmerName" placeholder="Farmer name" required />
+              <input name="cropType" placeholder="Crop type (Tomato)" required />
+              <input name="quantity" placeholder="Quantity (kg)" required />
+              <input name="harvestDate" type="date" required />
+            </div>
+            <textarea name="notes" placeholder="Notes (organic, pesticide-free)" style="margin-top:10px"></textarea>
+            <div style="margin-top:10px; display:flex; gap:8px;">
+              <button class="btn">Register</button>
+              <button type="button" class="btn secondary" id="clear-reg">Clear</button>
+            </div>
+          </form>
+        </section>
+      `);
+
+      const registerForm = document.getElementById('register-form');
+
+      registerForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const fm = new FormData(registerForm);
+        const id = nextBatchId();
+        const metadata = {
+          id,
+          farmerName: fm.get('farmerName'),
+          cropType: fm.get('cropType'),
+          quantity: fm.get('quantity'),
+          harvestDate: fm.get('harvestDate'),
+          notes: fm.get('notes'),
+          registeredAt: new Date().toISOString()
+        };
+        const cid = ipfsAdd(metadata);
+        saveBatchIndex({
+          id,
+          cid,
+          farmerName: metadata.farmerName,
+          cropType: metadata.cropType,
+          status: 'Registered'
+        });
+        chainEmit({
+          type: 'REGISTER',
+          batchId: id,
+          cid,
+          actor: metadata.farmerName
+        });
+        showDashboard();
+      });
+
+      document.getElementById('clear-reg').addEventListener('click', () => {
+        registerForm.reset();
+      });
+    }
+
+    // ===== Show Transport Update =====
+    function showTransport() {
+      const batches = Object.values(getBatchIndex());
+      fadeInView(`
+        <section class="card">
+          <h2>Transport / Handover Update</h2>
+          <div style="margin-top:10px">
+            <label class="small">Select Batch</label>
+            <select id="select-batch">
+              ${batches.map(b => `<option value="${b.id}">#${b.id} — ${b.cropType} — ${b.farmerName}</option>`).join('')}
+            </select>
+          </div>
+          <form id="transport-form" style="margin-top:10px">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <input name="transporterName" placeholder="Transporter name" required />
+              <input name="location" placeholder="Location / checkpoint" required />
+            </div>
+            <input name="temp" placeholder="Temperature (optional)" style="margin-top:10px" />
+            <div style="margin-top:10px; display:flex; gap:8px;">
+              <button class="btn">Send Update</button>
+              <button type="button" class="btn secondary" id="clear-trans">Clear</button>
+            </div>
+          </form>
+        </section>
+      `);
+
+      const transportForm = document.getElementById('transport-form');
+
+      transportForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const fm = new FormData(transportForm);
+        const bid = document.getElementById('select-batch').value;
+        const telemetry = {
+          transporterName: fm.get('transporterName'),
+          location: fm.get('location'),
+          temp: fm.get('temp'),
+          time: new Date().toISOString()
+        };
+        const cid = ipfsAdd({ telemetry, batchId: bid });
+        chainEmit({ type: 'TRANSPORT_UPDATE', batchId: bid, cid, actor: fm.get('transporterName') });
+
+        const idx = getBatchIndex();
+        idx[bid].status = 'In Transit';
+        localStorage.setItem('batches', JSON.stringify(idx));
+
+        showDashboard();
+      });
+
+      document.getElementById('clear-trans').addEventListener('click', () => {
+        transportForm.reset();
+      });
+    }
+
+    // ===== Show Consumer Scan =====
+    function showConsumer() {
+      fadeInView(`
+        <section class="card">
+          <h2>Consumer Scan</h2>
+          <div style="margin-top:10px;display:flex;gap:8px;align-items:center">
+            <input id="scanId" placeholder="Enter batch id (e.g., 1)" />
+            <button class="btn" id="do-scan">Scan / View</button>
+          </div>
+          <div id="scan-result" style="margin-top:12px"></div>
+        </section>
+      `);
+
+      document.getElementById('do-scan').addEventListener('click', () => {
+        const id = document.getElementById('scanId').value.trim();
+        if (!id) return alert('Enter a batch id');
+
+        const idx = getBatchIndex();
+        if (!idx[id]) return alert('Batch not found');
+
+        const meta = ipfsGet(idx[id].cid);
+        const events = chainGetEventsByBatch(id);
+
+        const out = document.getElementById('scan-result');
+        out.innerHTML = `
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div>
+                <div class="small">Batch</div>
+                <div style="font-weight:800;font-size:20px">#${id}</div>
+                <div>Farmer: ${meta.farmerName}</div>
+                <div>Crop: ${meta.cropType}</div>
+                <div>Quantity: ${meta.quantity}</div>
+                <div>Harvested: ${meta.harvestDate}</div>
+              </div>
+              <div id="big-qr"></div>
+            </div>
+            <div style="margin-top:12px">
+              <h3>Chain Events</h3>
+              <div id="events-list"></div>
+            </div>
+          </div>
+        `;
+
+        const qrEl = document.createElement('canvas');
+        qrEl.style.width = '120px';
+        qrEl.style.height = '120px';
+        document.getElementById('big-qr').appendChild(qrEl);
+        new QRious({ element: qrEl, value: window.location.href + '?batch=' + id, size: 120 });
+
+        const evList = document.getElementById('events-list');
+        evList.innerHTML = '';
+        events.forEach(ev => {
+          const eDiv = document.createElement('div');
+          eDiv.className = 'card';
+          eDiv.style.marginTop = '8px';
+          eDiv.innerHTML = `
+            <div class="small">${ev.type} — ${new Date(ev.timestamp).toLocaleString()}</div>
+            <div class="small">actor: ${ev.actor} | tx: ${ev.txHash}</div>
+            <div class="small">cid: ${ev.cid}</div>
+          `;
+          evList.appendChild(eDiv);
+        });
+      });
+    }
+
+    // ===== Button Actions =====
+    main.addEventListener('click', function (e) {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      const action = btn.dataset.action;
+      const batch = btn.dataset.batch;
+
+      if (action === 'view') {
+        const idx = getBatchIndex();
+        const metadata = ipfsGet(idx[batch].cid);
+        const events = chainGetEventsByBatch(batch);
+
+        fadeInView(`
+        <section class="card">
+          <button id="back" class="btn secondary">Back</button>
+          <h2>Batch #${batch}</h2>
+          <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:10px">
+
+            <!-- Metadata card -->
+            <div class="card">
+              <h3>Metadata</h3>
+              <p><strong>Farmer:</strong> ${metadata.farmerName}</p>
+              <p><strong>Crop:</strong> ${metadata.cropType}</p>
+              <p><strong>Quantity:</strong> ${metadata.quantity} kg</p>
+              <p><strong>Harvest Date:</strong> ${metadata.harvestDate}</p>
+              <p><strong>Notes:</strong> ${metadata.notes}</p>
+            </div>
+
+            <!-- On-chain events card -->
+            <div class="card">
+              <h3>On-chain Events</h3>
+              <div id="events-area"></div>
+            </div>
+
+          </div>
+        </section>
+      `);
+
+        const area = document.getElementById('events-area');
+        events.forEach(ev => {
+          const d = document.createElement('div');
+          d.className = 'card';
+          d.style.marginTop = '8px';
+          d.innerHTML = `
+            <div class="small">${ev.type} — ${new Date(ev.timestamp).toLocaleString()}</div>
+            <div class="small">actor: ${ev.actor} | tx: ${ev.txHash}</div>
+            <div class="small">cid: ${ev.cid}</div>
+          `;
+          area.appendChild(d);
+        });
+
+        document.getElementById('back').addEventListener('click', showDashboard);
+
+      } else if (action === 'retail') {
+        const price = prompt('Enter final selling price (per unit):');
+        if (!price) return;
+
+        const cid = ipfsAdd({ action: 'RETAIL_ARRIVAL', batchId: batch, price, time: new Date().toISOString() });
+        chainEmit({ type: 'RETAIL_ARRIVAL', batchId: batch, cid, actor: 'Retailer' });
+
+        const idx = getBatchIndex();
+        idx[batch].status = 'At Retail';
+        localStorage.setItem('batches', JSON.stringify(idx));
+
+        showDashboard();
+      }
+    });
+
+    // ===== Navigation =====
+    document.getElementById('nav-dashboard').addEventListener('click', showDashboard);
+    document.getElementById('nav-register').addEventListener('click', showRegister);
+    document.getElementById('nav-transport').addEventListener('click', showTransport);
+    document.getElementById('nav-consumer').addEventListener('click', showConsumer);
+
+    document.getElementById('export-state').addEventListener('click', function () {
+      const exportObj = {
+        batches: getBatchIndex(),
+        chainEvents: JSON.parse(localStorage.getItem('chainEvents') || '[]'),
+        ipfs: (function () {
+          const keys = Object.keys(localStorage).filter(k => k.startsWith('ipfs:'));
+          const out = {};
+          keys.forEach(k => out[k] = localStorage.getItem(k));
+          return out;
+        })()
+      };
+      const blob = new Blob([JSON.stringify(exportObj, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'supplychain_state.json';
+      a.click();
+    });
+
+    // ===== Load initial view =====
+    (function () {
+      const params = new URLSearchParams(window.location.search);
+      const bid = params.get('batch');
+      if (bid) {
+        showConsumer();
+        setTimeout(() => {
+          document.getElementById('scanId').value = bid;
+          document.getElementById('do-scan').click();
+        }, 250);
+      } else {
+        showDashboard();
+      }
+    })();
+  </script>
+</body>
+
+</html>
